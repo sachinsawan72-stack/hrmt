@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TeamDesk HR</title>
+<style>
+:root{--ink:#16231f;--side:#12302c;--acc:#0f766e;--acc2:#e9f4f2;--bg:#f4f6f5;--card:#fff;--line:#dce3e1;--mut:#62736e;--red:#b42318;--amb:#b45309}
+*{box-sizing:border-box}body{margin:0;font:14px/1.45 "Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+button,input,select,textarea{font:inherit}
+body.dark{--ink:#e6eeec;--bg:#0e1816;--card:#16231f;--line:#2a3b37;--mut:#94a8a3;--acc2:#1c3a36}
+#login{min-height:100vh;display:grid;place-items:center;padding:16px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;width:100%;max-width:360px}
+#app{display:none;min-height:100vh}
+aside{position:fixed;inset:0 auto 0 0;width:220px;background:var(--side);color:#cfe3df;overflow:auto;padding:14px 8px;transition:.2s;z-index:5}
+aside h1{font-size:16px;margin:4px 10px 14px;color:#fff}
+aside a{display:block;padding:9px 12px;border-radius:6px;color:#cfe3df;cursor:pointer;text-decoration:none}
+aside a:hover{background:#1c4540}aside a.on{background:var(--acc);color:#fff}
+main{margin-left:220px;padding:18px 20px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:8px}
+.top h2{margin:0;font-size:20px}#burger{display:none}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px}
+.stat b{display:block;font-size:26px}.stat span{color:var(--mut)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center}
+input,select,textarea{padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);max-width:100%}
+.f{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}.f label{display:block;font-size:12px;color:var(--mut)}.f input,.f select,.f textarea{width:100%;color:var(--ink)}
+.btn{background:var(--acc);color:#fff;border:0;padding:7px 12px;border-radius:6px;cursor:pointer}.btn.g{background:var(--acc2);color:var(--acc)}.btn.r{background:#fde8e6;color:var(--red)}.btn.s{padding:3px 8px;font-size:12px}
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;min-width:640px}th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{background:var(--acc2);font-weight:600}
+.tag{padding:2px 8px;border-radius:10px;font-size:12px;background:var(--acc2);color:var(--acc)}.tag.Pending{background:#fef3c7;color:var(--amb)}.tag.Rejected,.tag.Left{background:#fde8e6;color:var(--red)}
+#modal{display:none;position:fixed;inset:0;background:#0007;z-index:20;overflow:auto;padding:20px}#modal>div{background:var(--card);border-radius:10px;padding:18px;max-width:760px;margin:auto}
+#toast{position:fixed;bottom:16px;right:16px;background:var(--ink);color:#fff;padding:9px 14px;border-radius:6px;display:none;z-index:30}
+.letter{color:#16231f;background:#fff;padding:30px;border:1px solid var(--line);max-width:760px;line-height:1.7}
+.idc{color:#16231f;width:250px;border:2px solid var(--acc);border-radius:10px;overflow:hidden;background:#fff;text-align:center;font-size:12px;display:inline-block;margin:6px}
+.idc .h{background:var(--acc);color:#fff;padding:8px;font-weight:700}.idc img,.idc .ph{width:90px;height:100px;object-fit:cover;margin:10px auto 4px;display:block;background:#e5ebe9;border-radius:4px}
+#print{display:none}
+@media(max-width:800px){aside{transform:translateX(-100%)}aside.open{transform:none}main{margin-left:0;padding:12px}#burger{display:inline-block}}
+@media print{body.dark{--ink:#16231f;--line:#dce3e1;--card:#fff;--acc2:#e9f4f2;--mut:#62736e}body{background:#fff!important}body>*:not(#print){display:none!important}#print{display:block!important}.nop{display:none}.letter{border:0}}
+</style></head><body>
+<div id="login"><div class="box"><h2 style="margin-top:0">TeamDesk HR Login</h2>
+<p id="hint" style="color:var(--mut)">Demo mode: admin / admin123 (connect Firebase for real login)</p>
+<input id="lu" placeholder="Email / Username" style="width:100%;margin-bottom:8px"><input id="lp" type="password" placeholder="Password" style="width:100%;margin-bottom:12px">
+<button class="btn" style="width:100%" onclick="login()">Sign in</button><p><a href="#" onclick="fpw();return false">Forgot password?</a></p></div></div>
+<div id="app"><aside id="side"><h1>TeamDesk HR</h1><div id="nav"></div><a onclick="logout()">Sign out</a></aside>
+<main><div class="top"><div><button class="btn g" id="burger" onclick="$('#side').classList.toggle('open')">Menu</button> <h2 id="title" style="display:inline"></h2></div><span id="who" style="color:var(--mut)"></span></div><div id="main"></div></main></div>
+<div id="modal"><div id="mbody"></div></div><div id="toast"></div><div id="print"></div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const today=()=>new Date().toISOString().slice(0,10),ym=()=>today().slice(0,7);
+const CO={name:'Your Company Pvt. Ltd.',addr:'Company Address, City, State - 000000',sign:'Authorized Signatory (HR)',logo:'',sigimg:''};
+const RU={basic:50,hra:20,pf:12,esic:0.75,esicLim:21000,pt:200,ptLim:15000,leave:12};
+const DOCS=['Aadhaar Card','PAN Card','Bank Passbook','Photograph','Resume','Education Certificates','Police Verification','Medical Certificate','Appointment Letter'];
+const FD=[['name','Employee Name'],['eid','Employee ID'],['father',"Father's Name"],['dob','Date of Birth','date'],['gender','Gender','sel:Male,Female,Other'],['mobile','Mobile Number'],['email','Email ID','email'],['caddr','Current Address','ta'],['paddr','Permanent Address','ta'],['emg','Emergency Contact'],['desig','Designation'],['dept','Department'],['loc','Location / Site'],['doj','Joining Date','date'],['prob','Probation End Date','date'],['salary','Gross Salary (monthly Rs)','number'],['bank','Bank Details (A/c, IFSC)'],['uan','UAN'],['esic','ESIC Number'],['pan','PAN Number'],['aadhaar','Aadhaar Number'],['blood','Blood Group']];
+const NAV=['Dashboard','New Employee','Active Employees','Left Employees','Attendance','Leave Management','Salary & Payroll','Documents','ID Card Generator','HR Letters','Reports','Backup & Restore','Settings'];
+let db,user,page='Dashboard',editId=null,tmpPhoto='';
+function load(){try{db=JSON.parse(localStorage.getItem('hrdb'))}catch(e){}
+ if(!db)db={emps:[],att:{},leaves:[],log:[],admins:[{u:'admin',p:'admin123',role:'Admin'}]};}
+function save(){if(user&&user.role==='Viewer'){toast('Viewer role: read-only');return false}if(FBON()){FB.push(db).catch(e=>toast('Cloud save failed: '+(e.code||e.message)));return true}
+ try{localStorage.setItem('hrdb',JSON.stringify(db));
+ const d=today();if(localStorage.getItem('hrbk_d')!==d){localStorage.setItem('hrbk',JSON.stringify(db));localStorage.setItem('hrbk_d',d)}}catch(e){toast('Storage full! Take a backup.')}return true}
+function log(t){db.log.unshift({t:new Date().toLocaleString(),u:user?user.u:'-',a:t});db.log=db.log.slice(0,300)}
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2500)}
+let fails=0,locked=0;const FBON=()=>window.FB&&FB.on;
+async function login(){if(Date.now()<locked)return toast('Too many attempts. Try again in 1 minute');let a;
+ try{if(FBON()){a=await FB.login($('#lu').value.trim(),$('#lp').value,async()=>prompt('Enter the 6-digit code from your Authenticator app'));db=await FB.load();if(db.co)Object.assign(CO,db.co);if(db.rules)Object.assign(RU,db.rules)}
+ else{a=db.admins.find(x=>x.u===$('#lu').value&&x.p===$('#lp').value);if(!a)throw{message:'Wrong username or password'}}}
+ catch(e){if(++fails>=5){locked=Date.now()+60000;fails=0}return toast(e.message||e.code||'Login failed')}
+ user=a;$('#login').style.display='none';$('#app').style.display='block';$('#who').textContent=a.u+' ('+a.role+')';log('Logged in');save();go('Dashboard')}
+async function fpw(){const m=$('#lu').value.trim();if(!FBON()||!m)return toast('Enter your email first (Firebase mode)');try{await FB.reset(m);toast('Password reset email sent')}catch(e){toast(e.code)}}
+const me=()=>user.uid||user.u,adm=()=>user.role==='Admin',can=o=>adm()||(user.role==='HR'&&!!o&&o.by===me());
+function ck(o){if(can(o))return true;toast(user.role==='Viewer'?'Viewer role: read-only':'You can only change records you created');return false}
+const ro=()=>user.role==='Viewer'&&(toast('Viewer role: read-only'),true);
+function logout(){if(FBON()){FB.out().then(()=>location.reload());return}user=null;$('#app').style.display='none';$('#login').style.display='grid';$('#lp').value=''}
+function go(p){page=p;$('#side').classList.remove('open');$('#title').textContent=p;
+ $('#nav').innerHTML=NAV.map(n=>`<a class="${n==p?'on':''}" onclick="go('${n}')">${n}</a>`).join('');
+ ({'Dashboard':dash,'New Employee':newEmp,'Active Employees':active,'Left Employees':left,'Attendance':attend,'Leave Management':leave,'Salary & Payroll':payroll,'Documents':docs,'ID Card Generator':idcards,'HR Letters':letters,'Reports':reports,'Backup & Restore':backup,'Settings':settings})[p]()}
+const act=()=>db.emps.filter(e=>e.status!=='Left'),lft=()=>db.emps.filter(e=>e.status==='Left');
+const M=h=>$('#main').innerHTML=h;
+function modal(h){$('#mbody').innerHTML=h+'<p><button class="btn g" onclick="$(\'#modal\').style.display=\'none\'">Close</button></p>';$('#modal').style.display='block'}
+function pr(h){$('#print').innerHTML=h;window.print()}
+function csv(name,rows){const t=rows.map(r=>r.map(c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"').join(',')).join('\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+t],{type:'text/csv'}));a.download=name+'.csv';a.click();toast('Downloaded '+name+'.csv (opens in Excel)')}
+function tbl(h,rows){return `<div class="tw"><table><tr>${h.map(x=>'<th>'+x+'</th>').join('')}</tr>${rows.map(r=>'<tr>'+r.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')||'<tr><td colspan='+h.length+'>No records found</td></tr>'}</table></div>`}
+const sel=(id,opts,v)=>`<select id="${id}">${opts.map(o=>`<option ${o==v?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+const eopts=l=>l.map(e=>`<option value="${e.id}">${esc(e.name)} (${esc(e.eid)})</option>`).join('');
+const E=id=>db.emps.find(e=>e.id===id);
+function dash(){const a=act(),m=ym(),t=db.att[today()]||{},md=s=>(s||'').slice(5,10),td=today().slice(5,10);
+ const nj=db.emps.filter(e=>(e.doj||'').slice(0,7)==m).length,lm=lft().filter(e=>(e.lwd||'').slice(0,7)==m).length;
+ const pres=Object.values(t).filter(x=>x.s==='Present'||x.s==='Half Day').length;
+ const pend=a.reduce((n,e)=>n+DOCS.filter(d=>(e.docs||{})[d]!=='Verified').length,0);
+ const bd=a.filter(e=>e.dob&&md(e.dob)>=td).sort((x,y)=>md(x.dob)<md(y.dob)?-1:1).slice(0,5),an=a.filter(e=>e.doj&&md(e.doj)>=td&&e.doj.slice(0,4)<today().slice(0,4)).slice(0,5);
+ const S=[['Total Employees',db.emps.length],['Active Employees',a.length],['New Joinings (month)',nj],['Left Employees',lft().length],["Today's Attendance",pres+' / '+a.length],['Pending Documents',pend]];
+ let mo=[];for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);const k=d.toISOString().slice(0,7);mo.push([k,db.emps.filter(e=>(e.doj||'').slice(0,7)==k).length,lft().filter(e=>(e.lwd||'').slice(0,7)==k).length])}
+ M(`<div class="grid">${S.map(s=>`<div class="card stat"><span>${s[0]}</span><b>${s[1]}</b></div>`).join('')}</div><br>
+ <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))"><div class="card"><b>Upcoming birthdays</b><br>${bd.map(e=>esc(e.name)+' - '+e.dob.slice(5)).join('<br>')||'None'}</div>
+ <div class="card"><b>Probation ending in 30 days</b><br>${a.filter(e=>e.prob&&e.prob<=new Date(Date.now()+30*864e5).toISOString().slice(0,10)).map(e=>esc(e.name)+' - '+e.prob).join('<br>')||'None'}</div>
+ <div class="card"><b>Upcoming work anniversaries</b><br>${an.map(e=>esc(e.name)+' - '+e.doj.slice(5)).join('<br>')||'None'}</div></div><br>
+ <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))"><div class="card"><b>Department-wise headcount</b>${bars(Object.entries(a.reduce((o,e)=>(o[e.dept||'-']=(o[e.dept||'-']||0)+1,o),{})),'var(--acc)')}</div><div class="card"><b>Joined per month</b>${bars(mo.map(x=>[x[0],x[1]]),'var(--acc)')}<br><b>Left per month</b>${bars(mo.map(x=>[x[0],x[2]]),'var(--red)')}</div></div><p>Attrition (last 12 months): <b>${db.emps.length?Math.round(lft().filter(e=>(e.lwd||'')>new Date(Date.now()-365*864e5).toISOString().slice(0,10)).length/db.emps.length*100):0}%</b></p>`)}
+function newEmp(){const e=editId?E(editId):{};tmpPhoto=e.photo||'';
+ M(`<div class="card"><h3 style="margin-top:0">${editId?'Edit employee':'Register new employee'}</h3><div class="f">${FD.map(([k,l,t])=>`<div><label>${l}</label>${t=='ta'?`<textarea id="f_${k}" rows="2">${esc(e[k])}</textarea>`:t&&t.startsWith('sel')?sel('f_'+k,t.slice(4).split(','),e[k]):`<input id="f_${k}" type="${t||'text'}" value="${esc(e[k])}">`}</div>`).join('')}
+ <div><label>Employee Photograph</label><input type="file" accept="image/*" onchange="photo(this)"></div></div><br>
+ <button class="btn" onclick="saveEmp()">Save employee</button> <button class="btn g" onclick="editId=null;go('Active Employees')">Cancel</button></div>`)}
+function photo(i){const f=i.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=150;c.height=170;c.getContext('2d').drawImage(im,0,0,150,170);tmpPhoto=c.toDataURL('image/jpeg',.7)};im.src=r.result};r.readAsDataURL(f)}
+function saveEmp(){if(ro())return;const o={};FD.forEach(([k])=>o[k]=$('#f_'+k).value.trim());
+ if(!o.name||!o.eid)return toast('Name and Employee ID are required');
+ if(db.emps.some(x=>x.eid===o.eid&&x.id!==editId))return toast('Employee ID already exists');
+ o.photo=tmpPhoto;
+ if(editId){const e=E(editId);if(!ck(e))return;e.hist=e.hist||[];['dept','desig','loc','salary'].forEach(k=>{if(String(e[k])!==String(o[k]))e.hist.push({d:today(),c:k+': '+(e[k]||'-')+' -> '+o[k]})});const ch=FD.filter(([k])=>String(e[k]||'')!==String(o[k]||'')).map(([k])=>k+': '+(e[k]||'-')+' -> '+o[k]).join('; ');Object.assign(e,o);log('Edited '+o.name+(ch?' ['+ch+']':''))}
+ else{o.id='e'+Date.now();o.status='Active';o.by=me();o.byn=user.u;o.docs={};o.hist=[{d:o.doj||today(),c:'Joined at salary '+o.salary}];db.emps.push(o);log('Added '+o.name)}
+ if(save()){editId=null;toast('Saved');go('Active Employees')}}
+let fq='',fd='',fl='';
+function active(){const a=act(),dp=[...new Set(a.map(e=>e.dept).filter(Boolean))],lc=[...new Set(a.map(e=>e.loc).filter(Boolean))];
+ M(`<div class="bar"><input id="q" placeholder="Search name / ID / mobile / designation" value="${esc(fq)}" oninput="fq=this.value;actRows()"><select id="fd" onchange="fd=this.value;actRows()"><option value="">All departments</option>${dp.map(d=>`<option ${d==fd?'selected':''}>${esc(d)}</option>`).join('')}</select><select id="fl" onchange="fl=this.value;actRows()"><option value="">All locations</option>${lc.map(d=>`<option ${d==fl?'selected':''}>${esc(d)}</option>`).join('')}</select><button class="btn" onclick="editId=null;go('New Employee')">+ New employee</button></div><div id="rows"></div>`);actRows()}
+function actRows(){const q=fq.toLowerCase();const r=act().filter(e=>(!q||[e.name,e.eid,e.mobile,e.desig].join(' ').toLowerCase().includes(q))&&(!fd||e.dept==fd)&&(!fl||e.loc==fl));
+ $('#rows').innerHTML=tbl(['ID','Name','Designation','Dept','Site','Mobile','Salary','Added by','Actions'],r.map(e=>[esc(e.eid),esc(e.name),esc(e.desig),esc(e.dept),esc(e.loc),esc(e.mobile),user.role==='Viewer'?'***':esc(e.salary),esc(e.byn||'Admin'),
+ `<button class="btn s g" onclick="view('${e.id}')">View</button>${can(e)?` <button class="btn s g" onclick="editId='${e.id}';go('New Employee')">Edit</button>`:''} <button class="btn s g" onclick="quickLetter('${e.id}')">Letter</button> <button class="btn s g" onclick="idPrint('${e.id}')">ID</button> ${can(e)?`<button class="btn s r" onclick="markLeft('${e.id}')">Mark left</button> <button class="btn s r" onclick="delEmp('${e.id}')">Delete</button>`:''}`]))}
+function view(id){const e=E(id);modal(`<h3>${esc(e.name)} (${esc(e.eid)})</h3>${FD.map(([k,l])=>e[k]?`<div><b>${l}:</b> ${esc(e[k])}</div>`:'').join('')}<h4>Salary / transfer / promotion history</h4>${(e.hist||[]).map(h=>h.d+' - '+esc(h.c)).join('<br>')}`)}
+function delEmp(id){const e=E(id);if(!ck(e))return;if(!confirm('Delete '+e.name+' permanently? (Use "Mark left" to keep history)'))return;db.emps=db.emps.filter(x=>x.id!==id);if(FBON())FB.del(id);log('Deleted '+e.name);if(save())active()}
+function markLeft(id){const e=E(id);if(!ck(e))return;modal(`<h3>Exit: ${esc(e.name)}</h3><div class="f">${[['resd','Resignation Date','date'],['lwd','Last Working Date','date'],['reason','Reason for Leaving'],['notice','Notice Period'],['exitint','Exit Interview Notes'],['ffs','Full & Final Settlement (Rs)'],['pend','Pending Salary (Rs)'],['adv','Advance Recovery (Rs)'],['unif','Uniform / ID Card Recovery'],['assets','Company Assets Returned'],['exst','Exit Status']].map(([k,l,t])=>`<div><label>${l}</label><input id="x_${k}" type="${t||'text'}" value="${esc(e[k])}"></div>`).join('')}</div><br><button class="btn" onclick="doLeft('${id}')">Move to Left Employees</button>`)}
+function doLeft(id){const e=E(id);if(!ck(e))return;['resd','lwd','reason','notice','exitint','ffs','pend','adv','unif','assets','exst'].forEach(k=>e[k]=$('#x_'+k).value);e.status='Left';e.hist.push({d:today(),c:'Left company'});log('Marked left: '+e.name);if(save()){$('#modal').style.display='none';toast('Moved to Left Employees');go('Left Employees')}}
+function left(){M(`<div class="bar"><input id="lq" placeholder="Search left employees" oninput="lRows()"></div><div id="rows"></div>`);lRows()}
+function lRows(){const q=($('#lq').value||'').toLowerCase();$('#rows').innerHTML=tbl(['ID','Name','Designation','Dept','Site','Joined','Resigned','Last day','Reason','F&F','Exit status','Actions'],lft().filter(e=>!q||[e.name,e.eid,e.mobile].join(' ').toLowerCase().includes(q)).map(e=>[esc(e.eid),esc(e.name),esc(e.desig),esc(e.dept),esc(e.loc),esc(e.doj),esc(e.resd),esc(e.lwd),esc(e.reason),esc(e.ffs),`<span class="tag Left">${esc(e.exst||'Left')}</span>`,`<button class="btn s g" onclick="markLeft('${e.id}')">Edit exit</button> <button class="btn s g" onclick="rehire('${e.id}')">Rehire</button> <button class="btn s g" onclick="view('${e.id}')">View</button> <button class="btn s g" onclick="quickLetter('${e.id}','Relieving Letter')">Relieving</button> <button class="btn s g" onclick="quickLetter('${e.id}','Experience Letter')">Experience</button>`]))}
+function attend(){M(`<div class="bar"><input type="date" id="ad" value="${today()}" onchange="attRows()"><button class="btn g" onclick="act().forEach(e=>$('#s_'+e.id).value='Present')">All present</button><button class="btn" onclick="attSave()">Save attendance</button><input type="month" id="am" value="${ym()}"><button class="btn g" onclick="attExport()">Export month (Excel)</button><button class="btn g" onclick="attPdf()">Print / PDF</button></div><div id="rows"></div>`);attRows()}
+function attRows(){const d=$('#ad').value,t=db.att[d]||{};$('#rows').innerHTML=tbl(['Employee','Status','In','Out','Overtime (h)','Late','Hours'],act().map(e=>{const r=t[e.id]||{s:'Present',i:'09:00',o:'18:00',ot:0,l:'No'};return [esc(e.name),sel('s_'+e.id,['Present','Absent','Weekly Off','Paid Leave','Unpaid Leave','Half Day'],r.s),`<input type="time" id="i_${e.id}" value="${r.i}">`,`<input type="time" id="o_${e.id}" value="${r.o}">`,`<input type="number" id="t_${e.id}" value="${r.ot}" style="width:70px">`,sel('l_'+e.id,['No','Yes'],r.l),hrs(r.i,r.o,r.s)]}))}
+function hrs(i,o,s){if(!i||!o||['Absent','Weekly Off','Paid Leave','Unpaid Leave'].includes(s))return 0;const[a,b]=i.split(':'),[c,d]=o.split(':');return Math.max(0,((c*60+ +d)-(a*60+ +b))/60).toFixed(1)}
+function attSave(){if(ro())return;const d=$('#ad').value,old=db.att[d]||{},t={...old};let sk=0;act().forEach(e=>{const o=old[e.id];if(o&&!adm()&&o.by!==me()){sk++;return}t[e.id]={by:me(),s:$('#s_'+e.id).value,i:$('#i_'+e.id).value,o:$('#o_'+e.id).value,ot:+$('#t_'+e.id).value||0,l:$('#l_'+e.id).value}});db.att[d]=t;log('Attendance saved '+d);if(save()){toast(sk?'Saved. '+sk+' entries by others were skipped':'Attendance saved');attRows()}}
+function attData(){const m=$('#am').value,rows=[['Employee','ID','Date','Status','In','Out','Hours','OT','Late']];Object.keys(db.att).sort().filter(d=>d.startsWith(m)).forEach(d=>{for(const id in db.att[d]){const e=E(id);if(!e)continue;const r=db.att[d][id];rows.push([e.name,e.eid,d,r.s,r.i,r.o,hrs(r.i,r.o,r.s),r.ot,r.l])}});return rows}
+function attExport(){csv('attendance_'+$('#am').value,attData())}
+function attPdf(){const r=attData();pr(`<h3>${CO.name} - Attendance ${$('#am').value}</h3>`+tbl(r[0],r.slice(1)))}
+function leave(){M(`<div class="card"><div class="f"><div><label>Employee</label><select id="le">${eopts(act())}</select></div><div><label>Type</label>${sel('lt',['Paid Leave','Unpaid Leave','Sick Leave','Casual Leave','Half Day'])}</div><div><label>From</label><input type="date" id="lf"></div><div><label>To</label><input type="date" id="lto"></div><div><label>Reason</label><input id="lr"></div></div><br><button class="btn" onclick="addLeave()">Apply leave</button></div><br><b>Leave balance (this year)</b>${lbal()}<br>`+
+ tbl(['Employee','Type','From','To','Reason','Status','Action'],db.leaves.map((l,i)=>[esc((E(l.e)||{}).name),l.t,l.f,l.to,esc(l.r),`<span class="tag ${l.st}">${l.st}</span>`,`<button class="btn s g" onclick="lv(${i},'Approved')">Approve</button> <button class="btn s r" onclick="lv(${i},'Rejected')">Reject</button>`])))}
+function addLeave(){if(ro())return;if(!$('#le').value||!$('#lf').value)return toast('Select employee and dates');db.leaves.unshift({by:me(),byn:user.u,e:$('#le').value,t:$('#lt').value,f:$('#lf').value,to:$('#lto').value||$('#lf').value,r:$('#lr').value,st:'Pending'});log('Leave applied');if(save())leave()}
+function lv(i,s){const l=db.leaves[i];if(!ck(l))return;l.st=s;if(s==='Approved'){for(let d=new Date(l.f);d<=new Date(l.to);d.setDate(d.getDate()+1)){const k=d.toISOString().slice(0,10);db.att[k]=db.att[k]||{};db.att[k][l.e]={s:l.t=='Unpaid Leave'?'Unpaid Leave':l.t=='Half Day'?'Half Day':'Paid Leave',i:'',o:'',ot:0,l:'No'}}}if(save())leave()}
+function calc(e,m){const[y,mm]=m.split('-'),dim=new Date(y,mm,0).getDate(),g=+e.salary||0;let paid=dim,has=false,ot=0;
+ const ds=Object.keys(db.att).filter(d=>d.startsWith(m));if(ds.length){has=true;paid=0;ds.forEach(d=>{const r=db.att[d][e.id];if(!r)return;paid+=r.s=='Half Day'?.5:['Present','Weekly Off','Paid Leave'].includes(r.s)?1:0;ot+=r.ot||0});paid=Math.min(dim,paid)}
+ const f=has?paid/dim:1,basic=Math.round(g*RU.basic/100*f),hra=Math.round(g*RU.hra/100*f),al=Math.round(g*(100-RU.basic-RU.hra)/100*f),otp=Math.round(ot*(g/dim/8)*2),gross=basic+hra+al+otp,pf=Math.round(basic*RU.pf/100),esic=g<=RU.esicLim?Math.ceil(gross*RU.esic/100):0,pt=gross>RU.ptLim?RU.pt:0;
+ const x=(db.pay||{})[m+e.id]||{tds:0,adv:0,oth:0},ded=pf+esic+pt+ +x.tds+ +x.adv+ +x.oth;return{basic,hra,al,otp,gross,pf,esic,pt,tds:+x.tds,adv:+x.adv,oth:+x.oth,ded,net:gross-ded,paid,dim}}
+function payroll(){M(`<div class="bar"><input type="month" id="pm" value="${ym()}" onchange="payRows()"><button class="btn g" onclick="payCsv()">Export register (Excel)</button><button class="btn g" onclick="payPdf()">Print register</button></div><p style="color:var(--mut)">Rates come from Settings > Payroll rules. Enter TDS, advance and other deductions per employee.</p><div id="rows"></div>`);payRows()}
+function payRows(){const m=$('#pm').value;$('#rows').innerHTML=tbl(['Employee','Paid days','Basic','HRA','Allow.','OT','Gross','PF','ESIC','PT','TDS','Advance','Other','Net','Slip'],act().map(e=>{const c=calc(e,m);return[esc(e.name),c.paid+'/'+c.dim,c.basic,c.hra,c.al,c.otp,c.gross,c.pf,c.esic,c.pt,`<input style="width:70px" type="number" value="${c.tds}" onchange="pset('${e.id}','tds',this.value)">`,`<input style="width:70px" type="number" value="${c.adv}" onchange="pset('${e.id}','adv',this.value)">`,`<input style="width:70px" type="number" value="${c.oth}" onchange="pset('${e.id}','oth',this.value)">`,'<b>'+c.net+'</b>',`<button class="btn s g" onclick="slip('${e.id}')">PDF</button>`]}))}
+function pset(id,k,v){if(!ck(E(id))){payRows();return}const m=$('#pm').value;db.pay=db.pay||{};const key=m+id;db.pay[key]=db.pay[key]||{tds:0,adv:0,oth:0};db.pay[key][k]=v;save();payRows()}
+function payData(){const m=$('#pm').value,r=[['Employee','ID','Gross','PF','ESIC','PT','TDS','Advance','Other','Net']];act().forEach(e=>{const c=calc(e,m);r.push([e.name,e.eid,c.gross,c.pf,c.esic,c.pt,c.tds,c.adv,c.oth,c.net])});return r}
+function payCsv(){csv('salary_register_'+$('#pm').value,payData())}
+function payPdf(){const r=payData();pr(`<h3>${CO.name} - Salary Register ${$('#pm').value}</h3>`+tbl(r[0],r.slice(1)))}
+function slip(id){const e=E(id),m=$('#pm').value,c=calc(e,m);pr(`<div class="letter"><h2 style="text-align:center;margin:0">${CO.name}</h2><p style="text-align:center">${CO.addr}<br><b>Salary Slip - ${m}</b></p><p>Name: <b>${esc(e.name)}</b> | ID: ${esc(e.eid)} | Designation: ${esc(e.desig)} | Dept: ${esc(e.dept)}<br>Bank: ${esc(e.bank)} | UAN: ${esc(e.uan)} | Paid days: ${c.paid}/${c.dim}</p>
+ <table><tr><th>Earnings</th><th>Rs</th><th>Deductions</th><th>Rs</th></tr><tr><td>Basic</td><td>${c.basic}</td><td>PF</td><td>${c.pf}</td></tr><tr><td>HRA</td><td>${c.hra}</td><td>ESIC</td><td>${c.esic}</td></tr><tr><td>Allowances</td><td>${c.al}</td><td>Prof. Tax</td><td>${c.pt}</td></tr><tr><td>Overtime</td><td>${c.otp}</td><td>TDS</td><td>${c.tds}</td></tr><tr><td></td><td></td><td>Advance / Other</td><td>${c.adv+c.oth}</td></tr><tr><th>Gross</th><th>${c.gross}</th><th>Total deductions</th><th>${c.ded}</th></tr></table><h3>Net Salary: Rs ${c.net}</h3>${sigH()}${CO.sign}</div>`)}
+function docs(){M(`<div class="bar"><select id="de" onchange="docRows()">${eopts(act())}</select><button class="btn g" onclick="docMissing()">Missing documents report</button></div><div id="rows"></div>`);docRows()}
+function docRows(){const e=E($('#de').value);if(!e){$('#rows').innerHTML='Add an employee first';return}e.docs=e.docs||{};e.dexp=e.dexp||{};
+ $('#rows').innerHTML=tbl(['Document','File','Status','Expiry date','Alert'],DOCS.map(d=>{const x=e.dexp[d],soon=x&&x<=new Date(Date.now()+30*864e5).toISOString().slice(0,10);return[d,`<input type="file" onchange="dfile('${d}',this)">${(e.fdata||{})[d]?`<a href="${e.fdata[d]}" download="${esc((e.files||{})[d])}">${esc((e.files||{})[d])}</a>`:esc((e.files||{})[d])}`,sel('ds_'+d.replace(/\W/g,''),['Pending','Verified','Rejected'],e.docs[d]||'Pending').replace('<select','<select onchange="dset(\''+d+'\',this.value)"'),`<input type="date" value="${x||''}" onchange="dexp('${d}',this.value)">`,soon?'<span class="tag Rejected">Expiring / expired</span>':'']}))}
+function dset(d,v){const e=E($('#de').value);if(!ck(e)){docRows();return}e.docs[d]=v;log('Doc '+d+' '+v+' for '+e.name);save()}
+function dexp(d,v){const e=E($('#de').value);if(!ck(e)){docRows();return}e.dexp[d]=v;save();docRows()}
+function dfile(d,i){const f=i.files[0];if(!f)return;if(f.size>400000)return toast('File too large (max 400 KB here)');const r=new FileReader();r.onload=()=>{const e=E($('#de').value);if(!ck(e))return;e.files=e.files||{};e.fdata=e.fdata||{};e.files[d]=f.name;e.fdata[d]=r.result;e.docs[d]=e.docs[d]||'Pending';if(save())docRows()};r.readAsDataURL(f)}
+function docMissing(){const r=[['Employee','ID','Missing / Not verified']];act().forEach(e=>{const m=DOCS.filter(d=>(e.docs||{})[d]!=='Verified');if(m.length)r.push([e.name,e.eid,m.join('; ')])});csv('missing_documents',r)}
+function idcards(){M(`<div class="bar"><button class="btn" onclick="idAll()">Print all ID cards</button></div>`+act().map(idc).join('')+`<br>`)}
+const idc=e=>`<div class="idc"><div class="h">${CO.logo?`<img src="${CO.logo}" style="height:22px;width:auto;margin:0 6px 0 0;display:inline;vertical-align:middle;border-radius:0">`:''}${CO.name}</div>${e.photo?`<img src="${e.photo}">`:'<div class="ph"></div>'}<b style="font-size:14px">${esc(e.name)}</b><br>${esc(e.desig)} | ${esc(e.dept)}<br>ID: <b>${esc(e.eid)}</b> | Blood: ${esc(e.blood)}<br>Mob: ${esc(e.mobile)}<div style="padding:6px;font-size:10px;color:#555">${CO.addr}</div></div>`;
+function idPrint(id){pr(idc(E(id)))}function idAll(){pr(act().map(idc).join(''))}
+const LT=['Joining Letter','Appointment Letter','Offer Letter','Warning Letter','Increment Letter','Transfer Letter','Resignation Acceptance','Relieving Letter','Experience Letter','NOC'];
+function letters(){M(`<div class="bar"><select id="le">${eopts(db.emps)}</select>${sel('lty',LT)}<input id="lx" placeholder="Extra details (new salary / site / reason)" style="min-width:240px"><button class="btn" onclick="genLetter()">Generate & print / PDF</button></div><p style="color:var(--mut)">Use the print dialog and choose "Save as PDF". Change company name, address and signatory in Settings.</p>`)}
+function quickLetter(id,t){page='HR Letters';letters();$('#le').value=id;if(t){$('#lty').value=t}$('#title').textContent='HR Letters'}
+function genLetter(){const e=E($('#le').value);if(!e)return;const t=$('#lty').value,x=$('#lx').value,d=new Date().toLocaleDateString('en-IN');
+ const B={'Joining Letter':`This is to confirm that you have joined our organization as <b>${esc(e.desig)}</b> in the ${esc(e.dept)} department at ${esc(e.loc)} on ${esc(e.doj)}.`,
+ 'Appointment Letter':`We are pleased to appoint you as <b>${esc(e.desig)}</b> in the ${esc(e.dept)} department at ${esc(e.loc)}, with effect from ${esc(e.doj)}, at a gross monthly salary of Rs ${esc(e.salary)}. Terms and conditions of service apply.`,
+ 'Offer Letter':`We are pleased to offer you the position of <b>${esc(e.desig)}</b> at a gross monthly salary of Rs ${esc(e.salary)}. Expected joining date: ${esc(e.doj)}. ${esc(x)}`,
+ 'Warning Letter':`It has come to our notice that your conduct/performance has been unsatisfactory: ${esc(x)||'(details)'}. You are hereby warned to improve; further lapses may lead to disciplinary action.`,
+ 'Increment Letter':`We are pleased to inform you that your salary is revised ${x?'to Rs '+esc(x):''}. Current gross: Rs ${esc(e.salary)}. Wishing you continued success.`,
+ 'Transfer Letter':`You are hereby transferred from ${esc(e.loc)} ${x?'to <b>'+esc(x)+'</b>':''} with immediate effect. Please report to your new location.`,
+ 'Resignation Acceptance':`We acknowledge and accept your resignation dated ${esc(e.resd)||d}. Your last working date will be ${esc(e.lwd)||'as per notice period'}.`,
+ 'Relieving Letter':`This is to certify that <b>${esc(e.name)}</b> has been relieved from duties as ${esc(e.desig)} with effect from ${esc(e.lwd)||d}, after completing the exit formalities.`,
+ 'Experience Letter':`This is to certify that <b>${esc(e.name)}</b> worked with us as <b>${esc(e.desig)}</b> from ${esc(e.doj)} to ${esc(e.lwd)||'date'}. Conduct and performance were satisfactory. We wish them success.`,
+ 'NOC':`This is to certify that we have no objection to ${esc(e.name)} (${esc(e.desig)}) ${esc(x)||'for the stated purpose'}.`};
+ pr(`<div class="letter"><div style="text-align:center;border-bottom:2px solid var(--acc);padding-bottom:8px">${logoH()}<h2 style="margin:4px 0">${CO.name}</h2>${CO.addr}</div><p style="text-align:right">Date: ${d}</p><h3 style="text-align:center;text-decoration:underline">${t.toUpperCase()}</h3><p>To,<br><b>${esc(e.name)}</b> (ID: ${esc(e.eid)})<br>${esc(e.caddr)}</p><p>Dear ${esc(e.name)},</p><p>${B[t]}</p><p>Regards,</p>${sigH()}<b>${CO.sign}</b><br>${CO.name}</div>`)}
+function reports(){const R={'New Joining Report':()=>[['Name','ID','Joining','Dept','Site']].concat(db.emps.filter(e=>(e.doj||'').slice(0,7)==ym()).map(e=>[e.name,e.eid,e.doj,e.dept,e.loc])),
+ 'Active Employee Report':()=>[['Name','ID','Designation','Dept','Site','Mobile','Salary']].concat(act().map(e=>[e.name,e.eid,e.desig,e.dept,e.loc,e.mobile,e.salary])),
+ 'Left Employee Report':()=>[['Name','ID','Joined','Last day','Reason','F&F','Exit status']].concat(lft().map(e=>[e.name,e.eid,e.doj,e.lwd,e.reason,e.ffs,e.exst])),
+ 'Document Pending Report':()=>[['Name','ID','Pending']].concat(act().map(e=>[e.name,e.eid,DOCS.filter(d=>(e.docs||{})[d]!=='Verified').join('; ')]).filter(r=>r[2])),
+ 'Monthly HR Report':()=>[['Month','Active','Joined','Left']].concat([[ym(),act().length,db.emps.filter(e=>(e.doj||'').slice(0,7)==ym()).length,lft().filter(e=>(e.lwd||'').slice(0,7)==ym()).length]])};
+ window.RP=R;M(`<div class="grid">${Object.keys(R).map(k=>`<div class="card"><b>${k}</b><br><br><button class="btn s" onclick="csv('${k.replace(/ /g,'_')}',RP['${k}']())">Excel</button> <button class="btn s g" onclick="rpPdf('${k}')">PDF</button></div>`).join('')}<div class="card"><b>Attendance / Salary</b><br><br><button class="btn s g" onclick="go('Attendance')">Attendance</button> <button class="btn s g" onclick="go('Salary & Payroll')">Salary</button></div></div>`)}
+function rpPdf(k){const r=RP[k]();pr(`<h3>${CO.name} - ${k}</h3>`+tbl(r[0],r.slice(1)))}
+function backup(){if(!adm())return M('<div class="card">Backup & Restore is for Admin only.</div>');M(`<div class="card"><p>All data is stored in this browser's database (localStorage) and is auto-backed-up once per day.</p><button class="btn" onclick="dl()">Download backup (JSON)</button> <label class="btn g">Restore from file<input type="file" accept=".json" hidden onchange="restore(this)"></label> <button class="btn g" onclick="autoRestore()">Restore last auto-backup</button><hr>
+ <b>Excel import</b> (CSV with headers: ${FD.map(f=>f[0]).join(', ')})<br><br><label class="btn g">Import CSV<input type="file" accept=".csv" hidden onchange="imp(this)"></label> <button class="btn g" onclick="csv('employees_all',[FD.map(f=>f[1]),...db.emps.map(e=>FD.map(f=>e[f[0]]))])">Export all employees</button> <button class="btn g" onclick="csv('import_template',[FD.map(f=>f[0])])">Import template</button></div>`)}
+function dl(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db)],{type:'application/json'}));a.download='hr_backup_'+today()+'.json';a.click()}
+function restore(i){const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.emps)throw 0;db=d;save();toast('Restored');go('Dashboard')}catch(e){toast('Invalid backup file')}};r.readAsText(i.files[0])}
+function autoRestore(){try{db=JSON.parse(localStorage.getItem('hrbk'));save();toast('Restored');go('Dashboard')}catch(e){toast('No auto-backup found')}}
+function parseCsv(t){const rows=[];let r=[],c='',q=false;for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch=='"'&&t[i+1]=='"'){c+='"';i++}else if(ch=='"')q=false;else c+=ch}else if(ch=='"')q=true;else if(ch==','){r.push(c);c=''}else if(ch=='\n'){r.push(c);rows.push(r);r=[];c=''}else if(ch!='\r')c+=ch}if(c||r.length){r.push(c);rows.push(r)}return rows}
+function imp(i){const r=new FileReader();r.onload=()=>{const rows=parseCsv(r.result.replace(/^\ufeff/,'')),h=rows[0];let n=0;rows.slice(1).forEach(x=>{const o={};h.forEach((k,j)=>o[k.trim()]=x[j]);if(!o.name||!o.eid||db.emps.some(e=>e.eid===o.eid))return;o.id='e'+Date.now()+n;o.status='Active';o.docs={};o.hist=[{d:o.doj||today(),c:'Imported'}];db.emps.push(o);n++});save();toast(n+' employees imported');go('Active Employees')};r.readAsText(i.files[0])}
+function settings0(){M(`<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">${pwCard()}${mfaCard()}
+ <div class="card"><b>Add admin account</b><br><br><input id="au" placeholder="Username"> <input id="ap" placeholder="Password"> ${sel('ar',['Admin','HR','Viewer'])} <button class="btn s" onclick="addAdm()">Add</button><br><br><span id="ulist">${db.admins.map(a=>esc(a.u)+' - '+a.role+(a.u!='admin'?` <a href="#" onclick="rmAdm('${a.u}');return false">remove</a>`:'')).join('<br>')}</span></div>
+ <div class="card"><b>Company details (for letters / ID cards)</b><br><br><input id="cn" value="${esc(CO.name)}" style="width:100%;margin-bottom:6px"><input id="ca" value="${esc(CO.addr)}" style="width:100%;margin-bottom:6px"><input id="cs" value="${esc(CO.sign)}" style="width:100%;margin-bottom:6px"><label>Logo</label> <input type="file" accept="image/*" onchange="imgSet('logo',this)"><br><label>Signature</label> <input type="file" accept="image/*" onchange="imgSet('sigimg',this)"><br><br><button class="btn s" onclick="saveCo()">Save</button></div>
+ <div class="card"><b>Payroll rules</b><br><br>${[['basic','Basic % of gross'],['hra','HRA % of gross'],['pf','PF % of basic'],['esic','ESIC %'],['esicLim','ESIC up to gross'],['pt','Professional Tax'],['ptLim','PT above gross'],['leave','Paid leaves / year']].map(([k,l])=>`<div style="margin:3px 0">${l} <input type="number" step="any" id="ru_${k}" value="${RU[k]}" style="width:90px"></div>`).join('')}<button class="btn s" onclick="saveRu()">Save rules</button></div>
+ <div class="card"><b>Appearance</b><br><br><button class="btn s g" onclick="dark()">Toggle dark mode</button></div></div><br><b>Activity history</b>${tbl(['Time','User','Action'],db.log.slice(0,50).map(l=>[l.t,esc(l.u),esc(l.a)]))}`)}
+async function chpw(){const p=$('#np').value;if(!p)return;if(FBON()){try{await FB.chpw(p);toast('Password changed')}catch(e){toast(e.code=='auth/requires-recent-login'?'Sign in again, then retry':e.code)}return}user.p=p;if(save())toast('Password changed')}
+async function addAdm(){const u=$('#au').value.trim(),pw=$('#ap').value,r=$('#ar').value;if(!u||!pw)return toast('Enter username/email and password');
+ if(FBON()){if(pw.length<6)return toast('Password: minimum 6 characters');try{await FB.addUser(u,pw,r);log('User added '+u+' ('+r+')');save();toast('User created');ulist()}catch(e){toast(e.code||e.message)}return}
+ if(db.admins.some(a=>a.u===u))return toast('Username already exists');db.admins.push({u,p:pw,role:r});log('Admin added');if(save())settings()}
+async function rmU(id){if(!confirm('Remove access for this user?'))return;await FB.rmUser(id);ulist()}
+function ulist(){FB.users().then(u=>$('#ulist').innerHTML=u.map(x=>esc(x.email)+' - '+x.role+` <a href="#" onclick="rmU('${x.id}');return false">remove</a>`).join('<br>'))}
+function settings(){if(!adm())return mySet();settings0();if(FBON())ulist()}
+const pwCard=()=>`<div class="card"><b>Change my password</b><br><br><input id="np" type="password" placeholder="New password"> <button class="btn s" onclick="chpw()">Update</button></div>`;
+const mfaCard=()=>FBON()?`<div class="card"><b>Authenticator app (2-step login)</b><br><br>${FB.mfaOn()?'Enabled for your account.':'<button class="btn s" onclick="mfaStart()">Set up Authenticator</button>'}<div id="mfa"></div></div>`:`<div class="card"><b>Authenticator app</b><br><br>Available after Firebase is connected.</div>`;
+const mySet=()=>M(`<div class="grid">${pwCard()}${mfaCard()}</div><br><b>Your role: ${user.role}</b> - you can change only the records you created.`);
+async function mfaStart(){try{const u=await FB.mfaStart();$('#mfa').innerHTML=`<p>Scan in Google / Microsoft Authenticator, or enter key <b>${esc(FB.sec.secretKey)}</b></p><div id="qr"></div><input id="mc" placeholder="6-digit code" style="width:120px"> <button class="btn s" onclick="mfaDone()">Verify & enable</button>`;const x=document.createElement('script');x.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';x.onload=()=>new QRCode($('#qr'),u);document.head.appendChild(x)}catch(e){toast(e.code==='auth/requires-recent-login'?'Sign in again, then retry':(e.code||e.message))}}
+async function mfaDone(){try{await FB.mfaFinish($('#mc').value.trim());toast('Authenticator enabled');go('Settings')}catch(e){toast(e.code||e.message)}}
+function rmAdm(u){db.admins=db.admins.filter(a=>a.u!==u);save();settings()}
+function saveCo(){CO.name=$('#cn').value;CO.addr=$('#ca').value;CO.sign=$('#cs').value;db.co=CO;if(save())toast('Saved')}
+const logoH=()=>CO.logo?`<img src="${CO.logo}" style="height:50px">`:`<div style="display:inline-block;width:46px;height:46px;border-radius:50%;background:var(--acc);color:#fff;line-height:46px;font-weight:700">${esc(CO.name[0])}</div>`;
+const sigH=()=>CO.sigimg?`<br><img src="${CO.sigimg}" style="height:50px"><br>`:'<br><br><br>';
+const bars=(d,c)=>{const mx=Math.max(1,...d.map(x=>x[1]));return d.map(x=>`<div style="display:flex;align-items:center;gap:8px;margin:4px 0"><span style="width:110px">${esc(x[0])}</span><div style="background:${c};height:14px;border-radius:3px;width:${x[1]/mx*60}%;min-width:2px"></div><b>${x[1]}</b></div>`).join('')||'No data'};
+const ldays=l=>l.t==='Half Day'?.5:Math.round((new Date(l.to)-new Date(l.f))/864e5)+1;
+function lbal(){const y=today().slice(0,4);return tbl(['Employee','Allowed','Used','Balance'],act().map(e=>{const u=db.leaves.filter(l=>l.e===e.id&&l.st==='Approved'&&l.t!=='Unpaid Leave'&&l.f.slice(0,4)==y).reduce((n,l)=>n+ldays(l),0);return[esc(e.name),RU.leave,u,RU.leave-u]}))}
+function rehire(id){const e=E(id);if(!ck(e))return;if(!confirm('Rehire '+e.name+'? Old exit record stays in history.'))return;e.status='Active';e.hist.push({d:today(),c:'Rehired (previous exit: '+(e.lwd||'-')+', '+(e.reason||'-')+')'});log('Rehired '+e.name);if(save())go('Active Employees')}
+function imgSet(k,i){const f=i.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(1,300/im.width),c=document.createElement('canvas');c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);CO[k]=c.toDataURL('image/png');db.co=CO;if(save())toast('Image saved')};im.src=r.result};r.readAsDataURL(f)}
+function saveRu(){Object.keys(RU).forEach(k=>RU[k]=+$('#ru_'+k).value);db.rules=RU;if(save())toast('Rules saved')}
+function dark(){const on=document.body.classList.toggle('dark');try{on?localStorage.setItem('hrdark','1'):localStorage.removeItem('hrdark')}catch(e){}}
+load();if(db.co)Object.assign(CO,db.co);if(db.rules)Object.assign(RU,db.rules);try{if(localStorage.getItem('hrdark'))document.body.classList.add('dark')}catch(e){}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&$('#login').style.display!=='none')login()});
+</script>
+<script type="module">
+/* === PASTE YOUR FIREBASE CONFIG HERE (Project settings > Your apps > Web app) === */
+const CFG={apiKey:"AIzaSyC0WPio0-ukD7TAAkUQYk4g4dNjSFQgXIc",authDomain:"hr-console-461e0.firebaseapp.com",projectId:"hr-console-461e0",messagingSenderId:"863682563911",appId:"1:863682563911:web:94cd21a06b12dd3b6a4662"};
+if(!CFG.apiKey.startsWith('PASTE')){
+const V='https://www.gstatic.com/firebasejs/10.14.1/';
+const [A,F]=await Promise.all([import(V+'firebase-app.js'),import(V+'firebase-auth.js')]),S=await import(V+'firebase-firestore.js');
+const app=A.initializeApp(CFG),auth=F.getAuth(app),fs=S.getFirestore(app),D=(...p)=>S.doc(fs,...p),C=n=>S.collection(fs,n);
+document.getElementById('hint').textContent='Sign in with your email and password';
+window.FB={on:true,sent:{},
+async login(email,pw,codeCb){try{await F.signInWithEmailAndPassword(auth,email,pw)}catch(e){if(e.code!=='auth/multi-factor-auth-required')throw e;const r=F.getMultiFactorResolver(auth,e),h=r.hints.find(x=>x.factorId==='totp')||r.hints[0];await r.resolveSignIn(F.TotpMultiFactorGenerator.assertionForSignIn(h.uid,await codeCb()))}
+ const u=auth.currentUser,pd=await S.getDoc(D('users',u.uid));if(!pd.exists()){await F.signOut(auth);throw{message:'No role assigned. Ask the Admin.'}}return{u:u.email,uid:u.uid,role:pd.data().role}},
+async load(){const db={emps:[],att:{},leaves:[],log:[],pay:{},admins:[]},fd={};
+ (await S.getDocs(C('files'))).forEach(d=>{const x=d.data();(fd[x.id]=fd[x.id]||{})[x.d]=x.data;FB.sent['f'+x.id+x.d]=JSON.stringify({id:x.id,d:x.d,data:x.data})});
+ (await S.getDocs(C('emps'))).forEach(d=>{const e=d.data();FB.sent['e'+e.id]=JSON.stringify(e);if(fd[e.id])e.fdata=fd[e.id];db.emps.push(e)});
+ (await S.getDocs(C('att'))).forEach(d=>{db.att[d.id]=d.data();FB.sent['a'+d.id]=JSON.stringify(d.data())});
+ (await S.getDocs(C('meta'))).forEach(d=>{const v=d.data().v;db[d.id]=v;FB.sent['m'+d.id]=JSON.stringify({v})});return db},
+async push(db){const W=async(ref,o,k)=>{const j=JSON.stringify(o);if(FB.sent[k]===j)return;await S.setDoc(ref,JSON.parse(j));FB.sent[k]=j};
+ for(const e of db.emps){const{fdata,...r}=e;await W(D('emps',e.id),r,'e'+e.id);for(const d in fdata||{})await W(D('files',e.id+'__'+encodeURIComponent(d)),{id:e.id,d,data:fdata[d]},'f'+e.id+d)}
+ for(const d in db.att)await W(D('att',d),db.att[d],'a'+d);
+ for(const k of['leaves','log','pay','co','rules'])if(db[k]!==undefined)await W(D('meta',k),{v:db[k]},'m'+k)},
+async del(id){await S.deleteDoc(D('emps',id))},
+async addUser(email,pw,role){const a2=F.getAuth(A.initializeApp(CFG,'sec'+Date.now())),c=await F.createUserWithEmailAndPassword(a2,email,pw);await S.setDoc(D('users',c.user.uid),{email,role});await F.signOut(a2)},
+async users(){const r=[];(await S.getDocs(C('users'))).forEach(d=>r.push({id:d.id,...d.data()}));return r},
+async rmUser(id){await S.deleteDoc(D('users',id))},
+async mfaStart(){const s=await F.multiFactor(auth.currentUser).getSession();FB.sec=await F.TotpMultiFactorGenerator.generateSecret(s);return FB.sec.generateQrCodeUrl(auth.currentUser.email,'TeamDesk HR')},
+async mfaFinish(code){await F.multiFactor(auth.currentUser).enroll(F.TotpMultiFactorGenerator.assertionForEnrollment(FB.sec,code),'Authenticator')},
+mfaOn:()=>F.multiFactor(auth.currentUser).enrolledFactors.length>0,
+out:()=>F.signOut(auth),reset:e=>F.sendPasswordResetEmail(auth,e),chpw:p=>F.updatePassword(auth.currentUser,p)};}
+</script></body></html>
