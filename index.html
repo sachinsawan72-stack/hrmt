@@ -34,11 +34,155 @@ table{border-collapse:collapse;width:100%;min-width:640px}th,td{padding:8px 10px
 #print{display:none}
 @media(max-width:800px){aside{transform:translateX(-100%)}aside.open{transform:none}main{margin-left:0;padding:12px}#burger{display:inline-block}}
 @media print{body.dark{--ink:#16231f;--line:#dce3e1;--card:#fff;--acc2:#e9f4f2;--mut:#62736e}body{background:#fff!important}body>*:not(#print){display:none!important}#print{display:block!important}.nop{display:none}.letter{border:0}}
+
+/* ===== TeamDesk HR visual refresh ===== */
+:root{
+  --ink:#172b2a;--side:#102c2a;--acc:#0d9488;--acc2:#e6f5f2;
+  --bg:#f3f7f6;--card:#fff;--line:#e1eae7;--mut:#71817d;
+  --shadow:0 14px 40px rgba(20,55,49,.07);--shadow-hover:0 18px 42px rgba(20,55,49,.12);
+}
+body{font-family:Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:-.01em;background:var(--bg)}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(circle at 88% 8%,rgba(13,148,136,.07),transparent 27%),radial-gradient(circle at 8% 90%,rgba(36,120,108,.05),transparent 25%)}
+button,.btn,a,input,select,textarea{transition:all .22s ease}
+.btn{padding:9px 15px;border-radius:9px;font-weight:650;box-shadow:0 3px 8px rgba(13,148,136,.12)}
+.btn:hover{filter:brightness(1.04);transform:translateY(-1px);box-shadow:0 7px 16px rgba(13,148,136,.18)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn.g{box-shadow:none}.btn.r{box-shadow:none}
+input,select,textarea{border-radius:9px;padding:10px 12px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(13,148,136,.12)}
+/* Login experience */
+#login{position:relative;isolation:isolate;overflow:hidden;min-height:100vh;padding:28px;background:linear-gradient(135deg,#edf6f3 0%,#f7faf9 48%,#e8f3f0 100%)}
+#login:before,#login:after{content:"";position:absolute;border-radius:50%;pointer-events:none;z-index:-1}
+#login:before{width:560px;height:560px;right:-180px;top:-250px;background:radial-gradient(circle,rgba(13,148,136,.16),rgba(13,148,136,0) 68%)}
+#login:after{width:480px;height:480px;left:-220px;bottom:-260px;background:radial-gradient(circle,rgba(16,44,42,.10),rgba(16,44,42,0) 70%)}
+.login-shell{width:min(100%,990px);min-height:590px;display:grid;grid-template-columns:1.02fr .98fr;background:#fff;border:1px solid rgba(255,255,255,.8);border-radius:25px;overflow:hidden;box-shadow:0 30px 90px rgba(24,67,59,.16);animation:loginEnter .75s cubic-bezier(.2,.8,.2,1) both}
+.login-brand{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:42px 46px;color:#fff;background:linear-gradient(145deg,#123d39 0%,#0d625a 58%,#0d9488 100%)}
+.login-brand:before{content:"";position:absolute;inset:0;opacity:.2;background-image:linear-gradient(rgba(255,255,255,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.12) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(135deg,#000,transparent 75%)}
+.brand-mark{position:relative;z-index:1;width:48px;height:48px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.35);border-radius:15px;background:rgba(255,255,255,.13);font-size:17px;font-weight:800;letter-spacing:-1px;backdrop-filter:blur(8px)}
+.brand-copy{position:relative;z-index:1;margin-top:auto;margin-bottom:auto;padding:45px 0}
+.eyebrow{font-size:10px;letter-spacing:.19em;font-weight:800;opacity:.72}
+.brand-copy h1{font-size:clamp(38px,5vw,58px);line-height:1.05;letter-spacing:-.055em;margin:18px 0;font-weight:750}
+.brand-copy h1 em{font-style:normal;color:#9ce5d9}
+.brand-copy p{max-width:330px;color:rgba(255,255,255,.76);font-size:15px;line-height:1.8}
+.brand-footer{position:relative;z-index:1;color:rgba(255,255,255,.72);font-size:12px;letter-spacing:.03em}
+.status-dot{display:inline-block;width:7px;height:7px;margin-right:8px;border-radius:50%;background:#8de3bb;box-shadow:0 0 0 4px rgba(141,227,187,.14)}
+.login-orbit{position:absolute;border:1px solid rgba(255,255,255,.13);border-radius:50%;pointer-events:none}
+.orbit-one{width:340px;height:340px;right:-135px;top:55px;animation:orbit 24s linear infinite}
+.orbit-two{width:230px;height:230px;right:-80px;top:110px;border-style:dashed;animation:orbit 32s linear infinite reverse}
+.login-form{align-self:stretch;display:flex;flex-direction:column;justify-content:center;width:auto;max-width:none;padding:58px clamp(28px,5vw,64px);border:0;border-radius:0;box-shadow:none;animation:formEnter .8s .12s both}
+.login-form h2{font-size:27px;letter-spacing:-.045em;margin:9px 0 8px;color:#17302d}
+.form-eyebrow{color:#0d9488;opacity:1}
+.login-hint{min-height:20px;margin:0 0 29px;color:#82918d;font-size:12px;line-height:1.6}
+.field-label{font-size:12px;font-weight:700;color:#435652;margin:0 0 8px}
+.field-wrap{position:relative;margin-bottom:19px}
+.field-wrap input{width:100%;height:49px;padding:0 14px 0 42px;background:#f8fbfa;border:1px solid #e2ebe8;color:#17302d}
+.field-wrap input::placeholder{color:#a2afab}
+.field-icon{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#849994;font-size:16px;z-index:1}
+.login-submit{width:100%;height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 17px 0 20px;margin-top:5px;border-radius:10px;background:linear-gradient(100deg,#0d766e,#0d9488);font-size:14px}
+.submit-arrow{font-size:21px;font-weight:400;transition:transform .2s}
+.login-submit:hover .submit-arrow{transform:translateX(4px)}
+.login-links{display:flex;justify-content:space-between;gap:12px;margin-top:19px;font-size:12px}
+.login-links a{color:#0d8178;text-decoration:none;font-weight:700}
+.login-links a:hover{text-decoration:underline}
+.login-links span{color:#9aa7a3}
+.login-security{display:flex;gap:9px;align-items:center;margin-top:38px;padding-top:19px;border-top:1px solid #edf1ef;color:#8a9995;font-size:11px}
+.login-security span{font-size:17px;color:#0d9488}
+.mobile-brand{display:none}
+/* Main portal */
+#app{animation:appReveal .45s ease both}
+aside{width:248px;padding:23px 13px;background:linear-gradient(180deg,#102f2c,#123d38 100%);box-shadow:8px 0 28px rgba(12,43,39,.06);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+aside h1{display:flex;align-items:center;gap:10px;font-size:17px;letter-spacing:-.03em;margin:0 10px 28px;padding:0 0 20px;border-bottom:1px solid rgba(255,255,255,.12)}
+aside h1:before{content:"TD";display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);font-size:12px;letter-spacing:-.5px}
+aside a{position:relative;margin:3px 0;padding:11px 13px;border-radius:9px;color:#c5d9d5;font-size:13px;font-weight:550}
+aside a:hover{background:rgba(255,255,255,.09);padding-left:16px}
+aside a.on{background:linear-gradient(100deg,#0d9488,#137d74);color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.13)}
+aside a.on:before{content:"";position:absolute;left:-13px;top:8px;bottom:8px;width:3px;border-radius:0 4px 4px 0;background:#9ce5d9}
+aside a:last-child{margin-top:22px;border-top:1px solid rgba(255,255,255,.12);border-radius:0;padding-top:20px}
+main{margin-left:248px;padding:28px 32px;max-width:1800px}
+.top{position:sticky;top:0;z-index:4;margin:-28px -32px 24px;padding:19px 32px;background:rgba(243,247,246,.88);backdrop-filter:blur(14px);border-bottom:1px solid rgba(220,232,227,.8)}
+.top h2{font-size:21px;font-weight:750;letter-spacing:-.04em;color:var(--ink)}
+#who{font-size:12px;padding:8px 12px;border:1px solid var(--line);border-radius:30px;background:var(--card)}
+#burger{margin-right:8px}
+.card{border:1px solid var(--line);border-radius:13px;padding:18px;background:var(--card);box-shadow:0 4px 15px rgba(26,61,54,.025);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;animation:cardIn .45s both}
+.card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:#cfe1dc}
+.stat{position:relative;overflow:hidden;min-height:112px;padding:19px}
+.stat:after{content:"";position:absolute;width:86px;height:86px;right:-28px;bottom:-36px;border-radius:50%;background:var(--acc2);opacity:.8}
+.stat span{position:relative;z-index:1;font-size:12px;font-weight:650;letter-spacing:.01em}
+.stat b{position:relative;z-index:1;font-size:30px;letter-spacing:-.05em;margin-top:7px;color:var(--acc)}
+.grid{gap:15px}
+.f{gap:14px}
+.bar{gap:10px;margin-bottom:16px}
+.tw{border:1px solid var(--line);border-radius:12px;box-shadow:0 4px 15px rgba(26,61,54,.025)}
+table{font-size:13px}
+th{padding:12px 13px;background:var(--acc2);color:#28534d;font-size:11px;text-transform:uppercase;letter-spacing:.055em}
+td{padding:11px 13px}
+tr:last-child td{border-bottom:0}
+tbody tr:hover,table tr:not(:first-child):hover{background:rgba(13,148,136,.035)}
+#modal{backdrop-filter:blur(5px);background:rgba(8,27,25,.52)}
+#modal>div{border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.22);animation:modalIn .25s ease both}
+#toast{border-radius:10px;padding:12px 17px;box-shadow:0 10px 30px rgba(0,0,0,.18);animation:toastIn .25s ease both}
+.tag{font-weight:650;padding:4px 9px}
+#main{animation:contentIn .35s ease both}
+body.dark #login{background:linear-gradient(135deg,#0e1b19,#132a26)}
+body.dark .login-shell{background:#16231f;border-color:#2a3b37}
+body.dark .login-form h2{color:#e6eeec}
+body.dark .login-hint,body.dark .login-security{color:#9aaba6}
+body.dark .field-label{color:#c4d2ce}
+body.dark .field-wrap input{background:#101d1b;border-color:#344943;color:#e6eeec}
+body.dark .login-links span{color:#9aaba6}
+body.dark .top{background:rgba(14,24,22,.9);border-color:#2a3b37}
+@keyframes loginEnter{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes formEnter{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
+@keyframes orbit{to{transform:rotate(360deg)}}
+@keyframes appReveal{from{opacity:0}to{opacity:1}}
+@keyframes contentIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@keyframes modalIn{from{opacity:0;transform:translateY(12px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:800px){
+  #login{padding:18px}
+  .login-shell{grid-template-columns:1fr;max-width:480px;min-height:0;border-radius:20px}
+  .login-brand{display:none}
+  .login-form{padding:35px 28px}
+  .mobile-brand{display:flex;align-items:center;gap:10px;margin-bottom:34px;color:#17302d;font-size:15px}
+  .brand-mark.small{width:34px;height:34px;border-radius:10px;background:#0d766e;color:#fff;border:0;font-size:12px}
+  .login-form h2{font-size:24px}
+  .login-security{margin-top:28px}
+  aside{width:260px}
+  main{padding:16px;margin-left:0}
+  .top{margin:-16px -16px 18px;padding:14px 16px}
+}
+@media(max-width:420px){.login-form{padding:28px 22px}.login-links{font-size:11px}main{padding:12px}.top{margin:-12px -12px 16px;padding:12px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
 </style></head><body>
-<div id="login"><div class="box"><h2 style="margin-top:0">TeamDesk HR Login</h2>
-<p id="hint" style="color:var(--mut)">Demo mode: admin / admin123 (connect Firebase for real login)</p>
-<input id="lu" placeholder="Email / Username" style="width:100%;margin-bottom:8px"><input id="lp" type="password" placeholder="Password" style="width:100%;margin-bottom:12px">
-<button class="btn" style="width:100%" onclick="login()">Sign in</button><p><a href="#" onclick="fpw();return false">Forgot password?</a></p></div></div>
+<div id="login">
+  <div class="login-shell">
+    <section class="login-brand">
+      <div class="brand-mark">TD</div>
+      <div class="brand-copy">
+        <span class="eyebrow">PEOPLE · OPERATIONS · GROWTH</span>
+        <h1>Work better.<br><em>Together.</em></h1>
+        <p>Your people operations, thoughtfully organized in one secure workspace.</p>
+      </div>
+      <div class="login-orbit orbit-one"></div><div class="login-orbit orbit-two"></div>
+      <div class="brand-footer"><span class="status-dot"></span> TeamDesk HR Workspace</div>
+    </section>
+    <section class="box login-form">
+      <div class="mobile-brand"><span class="brand-mark small">TD</span><span>TeamDesk <b>HR</b></span></div>
+      <span class="eyebrow form-eyebrow">WELCOME BACK</span>
+      <h2>Sign in to your account</h2>
+      <p id="hint" class="login-hint">Demo mode: admin / admin123 (connect Firebase for real login)</p>
+      <label class="field-label" for="lu">Email or username</label>
+      <div class="field-wrap"><span class="field-icon">✉</span><input id="lu" autocomplete="username" placeholder="Enter your email or username"></div>
+      <label class="field-label" for="lp">Password</label>
+      <div class="field-wrap"><span class="field-icon">⌑</span><input id="lp" type="password" autocomplete="current-password" placeholder="Enter your password"></div>
+      <button class="btn login-submit" onclick="login()"><span>Sign in</span><span class="submit-arrow">→</span></button>
+      <div class="login-links"><a href="#" onclick="fpw();return false">Forgot password?</a><span>Protected workspace</span></div>
+      <div class="login-security"><span>⌑</span> Your workspace is protected with secure authentication.</div>
+    </section>
+  </div>
+</div>
 <div id="app"><aside id="side"><h1>TeamDesk HR</h1><div id="nav"></div><a onclick="logout()">Sign out</a></aside>
 <main><div class="top"><div><button class="btn g" id="burger" onclick="$('#side').classList.toggle('open')">Menu</button> <h2 id="title" style="display:inline"></h2></div><span id="who" style="color:var(--mut)"></span></div><div id="main"></div></main></div>
 <div id="modal"><div id="mbody"></div></div><div id="toast"></div><div id="print"></div>
